@@ -23,11 +23,9 @@ class MainActivity : AppCompatActivity() {
     private val bleDataExchangeManager = object : BleManager.BleDataExchangeManager {
         override fun onDataReceived(data: BleData) {
             totalBleMessageCount++
-            runOnUiThread {
-                bleDataTotalCountTextView.text = totalBleMessageCount.toString()
-                bleDataTextView.text = data.message
-                Toast.makeText(this@MainActivity, "Message Received", Toast.LENGTH_SHORT).show()
-            }
+            bleDataTotalCountTextView.text = totalBleMessageCount.toString()
+            bleDataTextView.text = data.message
+            Toast.makeText(this@MainActivity, "Message Received", Toast.LENGTH_SHORT).show()
         }
 
         override fun getBleData(): BleData {

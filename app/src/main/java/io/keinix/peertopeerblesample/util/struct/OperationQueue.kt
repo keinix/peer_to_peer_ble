@@ -1,5 +1,6 @@
 package io.keinix.peertopeerblesample.util.struct
 
+import android.os.Handler
 import java.util.*
 
 /**
@@ -11,6 +12,7 @@ class OperationQueue {
 
     private var currentOperation: (() -> Unit)? = null
     private val queue = ArrayDeque<() -> Unit>()
+    private val handler = Handler()
 
     @Synchronized
     fun execute(operation: () -> Unit) {
@@ -32,6 +34,6 @@ class OperationQueue {
 
     private fun executeNext() {
         currentOperation = queue.poll()
-        currentOperation?.invoke()
+        handler.post {  currentOperation?.invoke() }
     }
 }

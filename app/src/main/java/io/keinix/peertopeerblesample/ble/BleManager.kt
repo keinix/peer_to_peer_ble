@@ -5,6 +5,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import io.keinix.peertopeerblesample.util.struct.ExpirationSet
@@ -21,11 +22,20 @@ class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) 
     private val tag = BleManager::class.java.canonicalName
     private val adapter get() = BluetoothAdapter.getDefaultAdapter()
 
+    // BLE Callbacks are executed on a binder thread. This handlers gets the work
+    // off that binder thread as soon as possible and back onto the thread the
+    // dataExchangeManager passed to this class expects.
+    private val handler = Handler()
+
     // Limit the rate at which bleData is parsed per user
     private val userIds = ExpirationSet<Int>(25000, 30)
+
+    // These methods will be called from inside a BLE callback
     private val rateLimitedDataExchangeManager = object : BleDataExchangeManager {
         override fun onDataReceived(data: BleData) {
-            if (userIds.add(data.userId)) dataExchangeManager.onDataReceived(data)
+            if (userIds.add(data.userId))  {
+                handler.post {  dataExchangeManager.onDataReceived(data) }
+            }
         }
 
         override fun getBleData(): BleData = dataExchangeManager.getBleData()
