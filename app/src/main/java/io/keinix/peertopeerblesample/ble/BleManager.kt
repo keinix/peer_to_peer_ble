@@ -52,6 +52,7 @@ class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) 
         Log.d(tag, "BleManager stopped")
         if (canBeClient) clientManager.stop()
         if (canBeServer) serverManager.stop()
+        userIds.clear()
     }
 
     /**

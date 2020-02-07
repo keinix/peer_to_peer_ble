@@ -155,6 +155,7 @@ class ClientBleManager(private val context: Context,
         if (adapter.isBleOn) {
             scanner?.stopScan(scanCallback)
             operationQueue.clear()
+            deviceAddress.clear()
             connectedGattServers.forEach { it.disconnect() }
         }
     }
