@@ -2,6 +2,7 @@ package io.keinix.peertopeerblesample
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.keinix.peertopeerblesample.ble.BleData
 import io.keinix.peertopeerblesample.ble.BleManager
+import io.keinix.peertopeerblesample.ble.isBleOn
 import io.keinix.peertopeerblesample.util.RequestCodes
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -68,6 +70,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindView() {
         startButton.setOnClickListener {
+            if (!BluetoothAdapter.getDefaultAdapter().isBleOn) {
+                Toast.makeText(this, "Please turn BLE on", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (bleStarted) {
                 bleManager.stop()
                 Toast.makeText(this, "Ble Stopped", Toast.LENGTH_SHORT).show()

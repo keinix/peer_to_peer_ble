@@ -149,10 +149,10 @@ class ClientBleManager(private val context: Context,
     fun stop() {
         if (adapter.isBleOn) {
             scanner?.stopScan(scanCallback)
-            operationQueue.clear()
-            deviceAddress.clear()
             connectedGattServers.forEach { it.disconnect() }
         }
+        operationQueue.clear()
+        deviceAddress.clear()
     }
 
     // Data will be received in BluetoothGattCallback#onCharacteristicRead
