@@ -33,16 +33,14 @@ class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) 
     // These methods will be called from inside a BLE callback
     private val rateLimitedDataExchangeManager = object : BleDataExchangeManager {
         override fun onDataReceived(data: BleData) {
-            if (userIds.add(data.userId))  {
-                handler.post {  dataExchangeManager.onDataReceived(data) }
-            }
+            if (userIds.add(data.userId)) dataExchangeManager.onDataReceived(data)
         }
 
         override fun getBleData(): BleData = dataExchangeManager.getBleData()
     }
 
-    private val clientManager = ClientBleManager(context, rateLimitedDataExchangeManager)
-    private val serverManager = ServerBleManager(context, rateLimitedDataExchangeManager)
+    private val clientManager = ClientBleManager(context, rateLimitedDataExchangeManager, handler)
+    private val serverManager = ServerBleManager(context, rateLimitedDataExchangeManager, handler)
 
     private val canBeClient: Boolean = adapter != null &&
             context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)

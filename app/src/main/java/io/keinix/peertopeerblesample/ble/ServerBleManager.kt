@@ -5,17 +5,16 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
+import android.os.Handler
 import android.os.ParcelUuid
-import android.util.Log
 import com.google.gson.Gson
 import io.keinix.peertopeerblesample.util.BleUuids
-import java.nio.charset.Charset
 import java.util.*
 
 class ServerBleManager(private val context: Context,
-                       private val dataExchangeManager: BleManager.BleDataExchangeManager) {
+                       private val dataExchangeManager: BleManager.BleDataExchangeManager,
+                       private val callbackHandler: Handler) {
 
-    private val tag = ServerBleManager::class.java.canonicalName
     private val gson = Gson()
 
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -64,13 +63,14 @@ class ServerBleManager(private val context: Context,
                                                  offset: Int,
                                                  characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicReadRequest(device, requestId, offset, characteristic)
-            Log.d(tag, "BLE server received a READ request")
             // send data to remote BLE client
-            val bleData = dataExchangeManager.getBleData()
-            val stringValue = gson.toJson(bleData)
-            val value = stringValue?.toByteArray()
-            characteristic?.value = value
-            gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
+            callbackHandler.post {
+                val bleData = dataExchangeManager.getBleData()
+                val stringValue = gson.toJson(bleData)
+                val value = stringValue?.toByteArray()
+                characteristic?.value = value
+                gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
+            }
         }
 
         override fun onCharacteristicWriteRequest(device: BluetoothDevice?,
@@ -89,31 +89,31 @@ class ServerBleManager(private val context: Context,
                 offset,
                 value
             )
-            Log.d(tag, "BLE server received a WRITE request")
             // receive data from remote ble client
-            characteristic?.value = value
-            val bleData = gson.fromJson(characteristic?.getStringValue(offset), BleData::class.java)
-            if (bleData != null) dataExchangeManager.onDataReceived(bleData)
-            if (responseNeeded) {
-                gattServer?.sendResponse(
-                    device,
-                    requestId,
-                    BluetoothGatt.GATT_SUCCESS,
-                    offset,
-                    null
-                )
+            callbackHandler.post {
+                characteristic?.value = value
+                val bleData =
+                    gson.fromJson(characteristic?.getStringValue(offset), BleData::class.java)
+                if (bleData != null) dataExchangeManager.onDataReceived(bleData)
+                if (responseNeeded) {
+                    gattServer?.sendResponse(
+                        device,
+                        requestId,
+                        BluetoothGatt.GATT_SUCCESS,
+                        offset,
+                        null
+                    )
+                }
             }
         }
     }
 
     fun start() {
-        Log.d(tag, "ServerBleManager started")
         openServer()
         startAdvertising()
     }
 
     fun stop() {
-        Log.d(tag, "ServerBleManager stopped")
         stopAdvertising()
         closeServer()
     }

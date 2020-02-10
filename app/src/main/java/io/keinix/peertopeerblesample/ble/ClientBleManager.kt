@@ -6,8 +6,8 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.Handler
 import android.os.ParcelUuid
-import android.util.Log
 import com.google.gson.Gson
 import io.keinix.peertopeerblesample.util.BleUuids
 import io.keinix.peertopeerblesample.util.struct.ExpirationSet
@@ -15,9 +15,9 @@ import io.keinix.peertopeerblesample.util.struct.OperationQueue
 import java.util.*
 
 class ClientBleManager(private val context: Context,
-                       dataExchangeManager: BleManager.BleDataExchangeManager) {
+                       dataExchangeManager: BleManager.BleDataExchangeManager,
+                       private val callbackHandler: Handler) {
 
-    private val tag = ClientBleManager::class.java.canonicalName
     private val gson = Gson()
 
     // Limit the connections attempts for a device to once every 30 seconds
@@ -71,15 +71,12 @@ class ClientBleManager(private val context: Context,
                 }
                 newState == BluetoothProfile.STATE_CONNECTED -> {
                     if (gatt != null) {
-                        Log.d(tag, "BLE client connected to a remote BLE server")
                         connectedGattServers.add(gatt)
                         operationQueue.execute { gatt.requestMtu(512) }
-                        Log.d(tag, "Ble client side device address: ${gatt.device.address}")
                     }
                 }
                 newState == BluetoothProfile.STATE_DISCONNECTED -> {
                     if (gatt != null) {
-                        Log.d(tag, "BLE client disconnected from a remote BLE server")
                         connectedGattServers.remove(gatt)
                         gatt.close()
                     }
@@ -117,11 +114,12 @@ class ClientBleManager(private val context: Context,
             operationQueue.operationComplete()
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // data received from remote BLE server
-                Log.d(tag, "BLE client received data from remote BLE server")
-                characteristic
-                    ?.getStringValue(0)
-                    ?.let { string -> gson.fromJson(string, BleData::class.java) }
-                    ?.let { bleData -> dataExchangeManager.onDataReceived(bleData) }
+                val stringValue = characteristic?.getStringValue(0)
+                callbackHandler.post {
+                    stringValue
+                        ?.let { string -> gson.fromJson(string, BleData::class.java) }
+                        ?.let { bleData -> dataExchangeManager.onDataReceived(bleData) }
+                }
                 if (gatt != null)  {
                     // send data to remote BLE server
                     operationQueue.execute { gatt.writeData(dataExchangeManager.getBleData()) }
@@ -137,21 +135,18 @@ class ClientBleManager(private val context: Context,
                                            status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             operationQueue.operationComplete()
-            Log.d(tag,"BLE client send data to remote BLE server")
             // data sent to remote BLE server. One-off data exchange is complete
             gatt?.disconnect()
         }
     }
 
     fun start() {
-        Log.d(tag, "ClientBleManager started")
         if (adapter.isBleOn) {
             scanner?.startScan(scanFilters, scanSettings, scanCallback)
         }
     }
 
     fun stop() {
-        Log.d(tag, "ClientBleManager stopped")
         if (adapter.isBleOn) {
             scanner?.stopScan(scanCallback)
             operationQueue.clear()
