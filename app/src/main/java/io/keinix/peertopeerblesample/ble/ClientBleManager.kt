@@ -41,6 +41,8 @@ class ClientBleManager(private val context: Context,
 
     private val scanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+        .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+        .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
         .build()
 
     private val scanCallback = object : ScanCallback() {
@@ -67,7 +69,13 @@ class ClientBleManager(private val context: Context,
             operationQueue.operationComplete()
             when {
                 status != BluetoothGatt.GATT_SUCCESS -> {
-                    if (gatt?.device != null) deviceAddress.remove(gatt.device.address)
+                    if (gatt?.device != null)  {
+                        deviceAddress.remove(gatt.device.address) // Used for rate limiting
+                        when(newState) {
+                            BluetoothProfile.STATE_DISCONNECTED -> gatt.close()
+                            else -> gatt.disconnect()
+                        }
+                    }
                 }
                 newState == BluetoothProfile.STATE_CONNECTED -> {
                     if (gatt != null) {
