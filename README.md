@@ -1,5 +1,5 @@
 # PeerToPeerBle
-This is an example project showing how to configure Android devices as both a BLE client (central) and BLE server (peripheral). This project is meant to accompany a talk I gave at DroidKaigi 2020.
+This is an example project showing how to configure Android devices as both a BLE client (central) and BLE server (peripheral). This project is meant to accompany a talk I gave at [DroidKaigi 2020](https://droidkaigi.jp/2020/en/).
 
 **Slides:** https://drive.google.com/file/d/1gASMtgCIra0u35VPVcULZEblJzxlZ-aK/view?usp=sharing
 
