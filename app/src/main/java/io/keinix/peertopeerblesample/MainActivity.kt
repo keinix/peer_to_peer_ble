@@ -55,8 +55,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+        grantResults: IntArray) {
         if (requestCode == RequestCodes.ACCESS_COARSE_LOCATION) {
             if (grantResults.isNotEmpty() &&
                 grantResults.first() == PackageManager.PERMISSION_GRANTED) {

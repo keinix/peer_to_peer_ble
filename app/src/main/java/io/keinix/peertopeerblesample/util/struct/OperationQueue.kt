@@ -1,5 +1,6 @@
 package io.keinix.peertopeerblesample.util.struct
 
+import android.os.CountDownTimer
 import android.os.Handler
 import java.util.*
 
@@ -22,18 +23,30 @@ class OperationQueue {
 
     @Synchronized
     fun operationComplete() {
+        timeout.cancel()
         currentOperation = null
         if (queue.isNotEmpty()) executeNext()
     }
 
     @Synchronized
     fun clear() {
+        timeout.cancel()
         currentOperation = null
         queue.clear()
     }
 
     private fun executeNext() {
         currentOperation = queue.poll()
-        handler.post {  currentOperation?.invoke() }
+        handler.post {
+            timeout.start()
+            currentOperation?.invoke()
+        }
+    }
+
+    private val timeout = object : CountDownTimer(10000, 1000) {
+        override fun onFinish() = operationComplete()
+
+        override fun onTick(millisUntilFinished: Long) {
+        }
     }
 }

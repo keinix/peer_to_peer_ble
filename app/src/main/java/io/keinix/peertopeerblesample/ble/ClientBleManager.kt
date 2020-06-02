@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Handler
 import android.os.ParcelUuid
+import android.util.Log
 import com.google.gson.Gson
 import io.keinix.peertopeerblesample.util.BleUuids
 import io.keinix.peertopeerblesample.util.struct.ExpirationSet
