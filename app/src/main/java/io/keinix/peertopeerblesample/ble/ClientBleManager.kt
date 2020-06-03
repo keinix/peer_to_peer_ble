@@ -8,9 +8,8 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Handler
 import android.os.ParcelUuid
-import android.util.Log
 import com.google.gson.Gson
-import io.keinix.peertopeerblesample.util.BleUuids
+import io.keinix.peertopeerblesample.util.BleUuid
 import io.keinix.peertopeerblesample.util.struct.ExpirationSet
 import io.keinix.peertopeerblesample.util.struct.OperationQueue
 import java.util.*
@@ -36,7 +35,7 @@ class ClientBleManager(private val context: Context,
     private val scanner get() = adapter?.bluetoothLeScanner
 
     private val scanFilters = ScanFilter.Builder()
-        .setServiceUuid(ParcelUuid.fromString(BleUuids.SERVICE_UUID))
+        .setServiceUuid(ParcelUuid.fromString(BleUuid.SERVICE_UUID))
         .build()
         .let { listOf(it) }
 
@@ -176,10 +175,10 @@ class ClientBleManager(private val context: Context,
     }
 
     private val BluetoothGatt.writeCharacteristic
-        get() = getService(UUID.fromString(BleUuids.SERVICE_UUID))
-            .getCharacteristic(UUID.fromString(BleUuids.WRITE_UUID))
+        get() = getService(UUID.fromString(BleUuid.SERVICE_UUID))
+            .getCharacteristic(UUID.fromString(BleUuid.WRITE_UUID))
 
     private val BluetoothGatt.readCharacteristic
-        get() = getService(UUID.fromString(BleUuids.SERVICE_UUID))
-            .getCharacteristic(UUID.fromString(BleUuids.READ_UUID))
+        get() = getService(UUID.fromString(BleUuid.SERVICE_UUID))
+            .getCharacteristic(UUID.fromString(BleUuid.READ_UUID))
 }

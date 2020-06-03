@@ -19,6 +19,7 @@ val BluetoothAdapter?.isBleOn get() = this != null && isEnabled
  */
 class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) {
 
+    var isStarted = false
     private val tag = BleManager::class.java.canonicalName
     private val adapter get() = BluetoothAdapter.getDefaultAdapter()
 
@@ -54,6 +55,7 @@ class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) 
         Log.d(tag, "BleManager started")
         if (canBeClient) clientManager.start()
         if (canBeServer) serverManager.start()
+        isStarted = true
     }
 
     fun stop() {
@@ -61,6 +63,7 @@ class BleManager(context: Context, dataExchangeManager: BleDataExchangeManager) 
         if (canBeClient) clientManager.stop()
         if (canBeServer) serverManager.stop()
         userIds.clear()
+        isStarted = false
     }
 
     /**

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PeerToPeerBleSample</string>
+    <string name="start_ble">Start Ble</string>
+    <string name="stop_ble">Stop Ble</string>
 </resources>

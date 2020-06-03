@@ -8,7 +8,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.ParcelUuid
 import com.google.gson.Gson
-import io.keinix.peertopeerblesample.util.BleUuids
+import io.keinix.peertopeerblesample.util.BleUuid
 import java.util.*
 
 class ServerBleManager(private val context: Context,
@@ -24,19 +24,19 @@ class ServerBleManager(private val context: Context,
     var gattServer: BluetoothGattServer? = null
 
     private val readCharacteristic = BluetoothGattCharacteristic(
-        UUID.fromString(BleUuids.READ_UUID),
+        UUID.fromString(BleUuid.READ_UUID),
         BluetoothGattCharacteristic.PROPERTY_READ,
         BluetoothGattCharacteristic.PERMISSION_READ
     )
 
     private val writeCharacteristic = BluetoothGattCharacteristic(
-        UUID.fromString(BleUuids.WRITE_UUID),
+        UUID.fromString(BleUuid.WRITE_UUID),
         BluetoothGattCharacteristic.PROPERTY_WRITE,
         BluetoothGattCharacteristic.PERMISSION_WRITE
     )
 
     private val bleService = BluetoothGattService(
-        UUID.fromString(BleUuids.SERVICE_UUID),
+        UUID.fromString(BleUuid.SERVICE_UUID),
         BluetoothGattService.SERVICE_TYPE_PRIMARY
     ).apply {
         addCharacteristic(readCharacteristic)
@@ -51,7 +51,7 @@ class ServerBleManager(private val context: Context,
         .build()
 
     private val advertiseData = AdvertiseData.Builder()
-        .addServiceUuid(ParcelUuid.fromString(BleUuids.SERVICE_UUID))
+        .addServiceUuid(ParcelUuid.fromString(BleUuid.SERVICE_UUID))
         .build()
 
     private val advertiseCallback = object : AdvertiseCallback() { }
